@@ -1,5 +1,6 @@
 package com.example.spyrobackend.domain;
 
+import com.example.spyrobackend.dto.api.ChargingWindowDto;
 import com.example.spyrobackend.dto.external.FuelShare;
 import com.example.spyrobackend.dto.external.GenerationInterval;
 
@@ -20,12 +21,7 @@ public class EnergyCalculator {
                 .sum();
     }
 
-    /**
-     * Usrednia udzial kazdego paliwa po wszystkich interwalach.
-     * Np. wind {40, 20} -> wind 30.
-     */
     public List<FuelShare> averageMix(List<GenerationInterval> intervals) {
-        // Sumujemy perc per paliwo, zachowujac kolejnosc pierwszego wystapienia.
         Map<String, Double> sumPerFuel = new LinkedHashMap<>();
         for (GenerationInterval interval : intervals) {
             for (FuelShare share : interval.generationmix()) {
@@ -37,5 +33,31 @@ public class EnergyCalculator {
         return sumPerFuel.entrySet().stream()
                 .map(entry -> new FuelShare(entry.getKey(), entry.getValue() / count))
                 .toList();
+    }
+
+    public ChargingWindowDto bestChargingWindow(List<GenerationInterval> intervals, int hours) {
+        int windowSize = 2 * hours;
+        if (intervals.size() < windowSize) {
+            throw new InsufficientDataException(
+                    "Need at least " + windowSize + " intervals for a " + hours + "h window, got " + intervals.size());
+        }
+
+        int bestStart = 0;
+        double bestAverage = -1;
+        for (int start = 0; start + windowSize <= intervals.size(); start++) {
+            double sum = 0;
+            for (int i = start; i < start + windowSize; i++) {
+                sum += cleanPercentage(intervals.get(i).generationmix());
+            }
+            double average = sum / windowSize;
+            if (average > bestAverage) {
+                bestAverage = average;
+                bestStart = start;
+            }
+        }
+
+        GenerationInterval first = intervals.get(bestStart);
+        GenerationInterval last = intervals.get(bestStart + windowSize - 1);
+        return new ChargingWindowDto(first.from(), last.to(), bestAverage);
     }
 }
