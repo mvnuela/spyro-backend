@@ -5,7 +5,7 @@ import com.example.spyrobackend.dto.external.FuelShare;
 import com.example.spyrobackend.dto.external.GenerationInterval;
 import org.junit.jupiter.api.Test;
 
-import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -21,8 +21,8 @@ class EnergyCalculatorTest {
 
     private GenerationInterval windInterval(String from, String to, double windPerc) {
         return new GenerationInterval(
-                Instant.parse(from),
-                Instant.parse(to),
+                OffsetDateTime.parse(from),
+                OffsetDateTime.parse(to),
                 List.of(new FuelShare("wind", windPerc), new FuelShare("gas", 100 - windPerc))
         );
     }
@@ -80,8 +80,8 @@ class EnergyCalculatorTest {
 
         ChargingWindowDto window = calculator.bestChargingWindow(intervals, 1);
 
-        assertThat(window.start()).isEqualTo(Instant.parse("2026-06-13T01:00:00Z"));
-        assertThat(window.end()).isEqualTo(Instant.parse("2026-06-13T02:00:00Z"));
+        assertThat(window.start()).isEqualTo(OffsetDateTime.parse("2026-06-13T01:00:00Z"));
+        assertThat(window.end()).isEqualTo(OffsetDateTime.parse("2026-06-13T02:00:00Z"));
         assertThat(window.averageCleanEnergyPercentage()).isEqualTo(85.0);
     }
 
@@ -96,8 +96,8 @@ class EnergyCalculatorTest {
 
         ChargingWindowDto window = calculator.bestChargingWindow(intervals, 1);
 
-        assertThat(window.start()).isEqualTo(Instant.parse("2026-06-13T23:30:00Z"));
-        assertThat(window.end()).isEqualTo(Instant.parse("2026-06-14T00:30:00Z"));
+        assertThat(window.start()).isEqualTo(OffsetDateTime.parse("2026-06-13T23:30:00Z"));
+        assertThat(window.end()).isEqualTo(OffsetDateTime.parse("2026-06-14T00:30:00Z"));
         assertThat(window.averageCleanEnergyPercentage()).isEqualTo(95.5);
     }
 

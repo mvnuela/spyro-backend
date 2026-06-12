@@ -1,9 +1,9 @@
 package com.example.spyrobackend.dto.api;
 
-import java.time.Instant;
+import java.time.OffsetDateTime;
 
 /**
  * Response returned to the frontend: the optimal charging window.
  */
-public record ChargingWindowDto(Instant start, Instant end, double averageCleanEnergyPercentage) {
+public record ChargingWindowDto(OffsetDateTime start, OffsetDateTime end, double averageCleanEnergyPercentage) {
 }
