@@ -9,11 +9,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.time.Clock;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class CarbonIntensityClientTest {
 
@@ -47,7 +50,7 @@ class CarbonIntensityClientTest {
     void setUp() throws IOException {
         server = new MockWebServer();
         server.start();
-        client = new CarbonIntensityClient(server.url("/").toString());
+        client = new CarbonIntensityClient(server.url("/").toString(), Clock.systemUTC(), 2000);
     }
 
     @AfterEach
@@ -77,5 +80,42 @@ class CarbonIntensityClientTest {
         RecordedRequest request = server.takeRequest();
         assertThat(request.getPath())
                 .isEqualTo("/generation/2024-05-01T00:00:00Z/2024-05-01T01:00:00Z");
+    }
+
+    @Test
+    void sortsIntervalsByTimeAscending() {
+        // API zwraca interwaly w ODWROTNEJ kolejnosci (00:30 przed 00:00)
+        String reversed = """
+                { "data": [
+                    { "from": "2024-05-01T00:30Z", "to": "2024-05-01T01:00Z",
+                      "generationmix": [ { "fuel": "wind", "perc": 40.0 } ] },
+                    { "from": "2024-05-01T00:00Z", "to": "2024-05-01T00:30Z",
+                      "generationmix": [ { "fuel": "wind", "perc": 30.0 } ] }
+                ] }
+                """;
+        server.enqueue(new MockResponse().setBody(reversed).addHeader("Content-Type", "application/json"));
+
+        List<GenerationInterval> intervals = client.getGenerationMix(
+                Instant.parse("2024-05-01T00:00:00Z"),
+                Instant.parse("2024-05-01T01:00:00Z"));
+
+        assertThat(intervals).extracting(GenerationInterval::from).containsExactly(
+                OffsetDateTime.parse("2024-05-01T00:00Z"),
+                OffsetDateTime.parse("2024-05-01T00:30Z"));
+    }
+
+    @Test
+    void throwsUpstreamUnavailableWhenApiIsTooSlow() {
+        CarbonIntensityClient slowClient =
+                new CarbonIntensityClient(server.url("/").toString(), Clock.systemUTC(), 300);
+        server.enqueue(new MockResponse()
+                .setBody(SAMPLE_JSON)
+                .addHeader("Content-Type", "application/json")
+                .setBodyDelay(1, TimeUnit.SECONDS)); // wolniej niz timeout 300ms
+
+        assertThatThrownBy(() -> slowClient.getGenerationMix(
+                Instant.parse("2024-05-01T00:00:00Z"),
+                Instant.parse("2024-05-01T01:00:00Z")))
+                .isInstanceOf(UpstreamUnavailableException.class);
     }
 }

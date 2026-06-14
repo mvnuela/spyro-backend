@@ -70,6 +70,23 @@ class EnergyCalculatorTest {
     }
 
     @Test
+    void roundsAveragedFuelSharesToTwoDecimals() {
+        List<GenerationInterval> intervals = List.of(
+                interval(new FuelShare("wind", 10.0), new FuelShare("gas", 90.0)),
+                interval(new FuelShare("wind", 10.0), new FuelShare("gas", 90.0)),
+                interval(new FuelShare("wind", 11.0), new FuelShare("gas", 89.0))
+        );
+
+        List<FuelShare> average = calculator.averageMix(intervals);
+
+        // wind (10+10+11)/3 = 10.333... -> 10.33 ; gas (90+90+89)/3 = 89.666... -> 89.67
+        assertThat(average).containsExactlyInAnyOrder(
+                new FuelShare("wind", 10.33),
+                new FuelShare("gas", 89.67)
+        );
+    }
+
+    @Test
     void picksWindowWithHighestAverageCleanEnergy() {
         List<GenerationInterval> intervals = List.of(
                 windInterval("2026-06-13T00:00:00Z", "2026-06-13T00:30:00Z", 10),
@@ -110,6 +127,33 @@ class EnergyCalculatorTest {
         );
 
         assertThatThrownBy(() -> calculator.bestChargingWindow(intervals, 2))
+                .isInstanceOf(InsufficientDataException.class);
+    }
+
+    @Test
+    void skipsWindowsWithATimeGap() {
+        List<GenerationInterval> intervals = List.of(
+                windInterval("2026-06-13T10:00:00Z", "2026-06-13T10:30:00Z", 50),
+                windInterval("2026-06-13T10:30:00Z", "2026-06-13T11:00:00Z", 60),
+                windInterval("2026-06-13T11:30:00Z", "2026-06-13T12:00:00Z", 100)
+        );
+
+        ChargingWindowDto window = calculator.bestChargingWindow(intervals, 1);
+
+        assertThat(window.averageCleanEnergyPercentage()).isEqualTo(55.0);
+        assertThat(window.start()).isEqualTo(OffsetDateTime.parse("2026-06-13T10:00:00Z"));
+        assertThat(window.end()).isEqualTo(OffsetDateTime.parse("2026-06-13T11:00:00Z"));
+    }
+
+    @Test
+    void throwsWhenNoContiguousWindowExists() {
+        List<GenerationInterval> intervals = List.of(
+                windInterval("2026-06-13T10:00:00Z", "2026-06-13T10:30:00Z", 50),
+                windInterval("2026-06-13T11:00:00Z", "2026-06-13T11:30:00Z", 60),
+                windInterval("2026-06-13T12:00:00Z", "2026-06-13T12:30:00Z", 70)
+        );
+
+        assertThatThrownBy(() -> calculator.bestChargingWindow(intervals, 1))
                 .isInstanceOf(InsufficientDataException.class);
     }
 }
