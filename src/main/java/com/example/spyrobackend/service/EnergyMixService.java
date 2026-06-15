@@ -48,11 +48,11 @@ public class EnergyMixService {
             List<GenerationInterval> dayIntervals = byDate.getOrDefault(date, List.of());
 
             if (dayIntervals.isEmpty()) {
-                days.add(new DailyMixDto(date, List.of(), 0.0, 0));
+                days.add(new DailyMixDto(date, List.of(), 0.0));
             } else {
                 List<FuelShare> average = calculator.averageMix(dayIntervals);
                 double clean = calculator.cleanPercentage(average);
-                days.add(new DailyMixDto(date, average, clean, dayIntervals.size()));
+                days.add(new DailyMixDto(date, average, clean));
             }
         }
         return days;

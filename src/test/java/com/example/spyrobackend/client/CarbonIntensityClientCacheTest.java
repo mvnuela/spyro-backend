@@ -82,7 +82,7 @@ class CarbonIntensityClientCacheTest {
         client.getThreeDayGenerationMix();
         client.getThreeDayGenerationMix();
 
-        // second call must be served from cache -> only one real HTTP request
+        // second call must be served from cache
         assertThat(server.getRequestCount() - requestsBefore).isEqualTo(1);
     }
 
@@ -94,7 +94,7 @@ class CarbonIntensityClientCacheTest {
         client.getThreeDayGenerationMix();
         client.getThreeDayGenerationMix();
 
-        // an empty upstream result must NOT be cached -> both calls hit the API
+        // an empty upstream result must NOT be cached
         assertThat(server.getRequestCount() - requestsBefore).isEqualTo(2);
     }
 }

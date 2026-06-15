@@ -50,11 +50,8 @@ class EnergyMixServiceTest {
         assertThat(result.get(0).cleanEnergyPercentage()).isEqualTo(30.0);
         assertThat(result.get(0).generationMix()).containsExactlyInAnyOrder(
                 new FuelShare("wind", 30.0), new FuelShare("gas", 70.0));
-        assertThat(result.get(0).intervalCount()).isEqualTo(2); // two intervals on the 13th
         assertThat(result.get(1).cleanEnergyPercentage()).isEqualTo(50.0);
-        assertThat(result.get(1).intervalCount()).isEqualTo(1);
         assertThat(result.get(2).cleanEnergyPercentage()).isEqualTo(10.0);
-        assertThat(result.get(2).intervalCount()).isEqualTo(1);
     }
 
     @Test
@@ -67,7 +64,6 @@ class EnergyMixServiceTest {
         assertThat(result).allSatisfy(day -> {
             assertThat(day.generationMix()).isEmpty();
             assertThat(day.cleanEnergyPercentage()).isEqualTo(0.0);
-            assertThat(day.intervalCount()).isEqualTo(0);
         });
     }
 }

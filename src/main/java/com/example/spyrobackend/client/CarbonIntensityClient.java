@@ -70,7 +70,7 @@ public class CarbonIntensityClient {
         if (response == null || response.data() == null) {
             return List.of();
         }
-        // Defensive: do not assume the API returns intervals in chronological order.
+        // do not assume the API returns intervals in chronological order.
         return response.data().stream()
                 .sorted(Comparator.comparing(GenerationInterval::from))
                 .toList();

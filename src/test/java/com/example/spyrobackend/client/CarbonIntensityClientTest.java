@@ -111,7 +111,7 @@ class CarbonIntensityClientTest {
         server.enqueue(new MockResponse()
                 .setBody(SAMPLE_JSON)
                 .addHeader("Content-Type", "application/json")
-                .setBodyDelay(1, TimeUnit.SECONDS)); // wolniej niz timeout 300ms
+                .setBodyDelay(1, TimeUnit.SECONDS));
 
         assertThatThrownBy(() -> slowClient.getGenerationMix(
                 Instant.parse("2024-05-01T00:00:00Z"),

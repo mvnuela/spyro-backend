@@ -38,9 +38,9 @@ class EnergyControllerTest {
     @Test
     void energyMixReturnsThreeDays() throws Exception {
         when(energyMixService.getThreeDayMix()).thenReturn(List.of(
-                new DailyMixDto(LocalDate.of(2026, 6, 13), List.of(new FuelShare("wind", 30.0)), 30.0, 48),
-                new DailyMixDto(LocalDate.of(2026, 6, 14), List.of(new FuelShare("wind", 50.0)), 50.0, 48),
-                new DailyMixDto(LocalDate.of(2026, 6, 15), List.of(new FuelShare("wind", 10.0)), 10.0, 24)
+                new DailyMixDto(LocalDate.of(2026, 6, 13), List.of(new FuelShare("wind", 30.0)), 30.0),
+                new DailyMixDto(LocalDate.of(2026, 6, 14), List.of(new FuelShare("wind", 50.0)), 50.0),
+                new DailyMixDto(LocalDate.of(2026, 6, 15), List.of(new FuelShare("wind", 10.0)), 10.0)
         ));
 
         mockMvc.perform(get("/api/energy-mix"))
