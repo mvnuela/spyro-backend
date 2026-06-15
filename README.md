@@ -35,7 +35,7 @@ bo API zwraca tylko interwały maksymalnie 48h w przod.
 
 ### 2. `GET /api/charging-window?hours={1-6}`
 
-Wyznacza optymalne okno czasowe na ładowanie** o zadanej długości (1–6 h) w ciągu
+Wyznacza optymalne okno czasowe na ładowanie o zadanej długości (1–6 h) w ciągu
 najbliższych dwóch dni — czyli przedział, w którym średni udział czystej energii jest najwyższy.
 
 ## Logika 
