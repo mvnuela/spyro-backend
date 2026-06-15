@@ -42,7 +42,7 @@ najbliższych dwóch dni — czyli przedział, w którym średni udział czystej
 1. Jedno zapytanie do zewnętrznego API, współdzielone przez oba endpointy.
 `CarbonIntensityClient` pobiera  okno 3 dni (`/generation/{from}/{to}`) icache'uje
 wynik (Caffeine, TTL 30 min). Dzięki temu `/energy-mix` i `/charging-window` korzystają z tych
-samych danych zamiast odpytywac API osobno
+samych danych 
 
 2. Procent czystej energii (`EnergyCalculator#cleanPercentage`)
 to suma udziałów źródeł z listy: `biomass, nuclear, hydro, wind, solar`.
