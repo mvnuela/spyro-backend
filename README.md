@@ -30,7 +30,7 @@ Bazowy adres: `http://localhost:8080/api`
 
 Zwraca uśredniony miks energetyczny na 3 dni (dziś, jutro, pojutrze) wraz z procentem
 czystej energii dla każdego dnia. Dane dla 3 dnia nie są z pełnej doby, 
-bo API zwraca tylko interwały maksymalnie 48h w przod.
+bo API zwraca tylko interwały maksymalnie 48h w przod. Zaokraglam wyniki do 2 miejsc po przecinku.
 
 
 ### 2. `GET /api/charging-window?hours={1-6}`
